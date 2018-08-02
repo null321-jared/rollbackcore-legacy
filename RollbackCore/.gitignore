@@ -1,1 +1,6 @@
-/target/
+target/
+.settings/
+.classpath
+.project
+**/nppBackup
+dependency-reduced-pom.xml

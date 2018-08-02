@@ -23,17 +23,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.Callable;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import net.shadowxcraft.rollbackcore.metrics.Metrics;
 
 public class Main extends JavaPlugin {
 
 	public static JavaPlugin plugin;
 	public static Path savesPath;
 	public static Path regionsPath;
+	Metrics metrics;
 
 	// Fired when plugin is first enabled
 	@Override
@@ -51,17 +52,24 @@ public class Main extends JavaPlugin {
 			regionsPath = Paths.get(savesPath.toString(), "/regions");
 			Files.createDirectories(regionsPath);
 
-			Metrics metrics = new Metrics(this);
-			metrics.start();
 		} catch (IOException e) {
 			// Failed to submit the stats :-(
 		}
 		Config.loadConfigs(plugin);
+
+		metrics = new Metrics(this);
+
+		metrics.addCustomChart(new Metrics.SimplePie("Target_Time", new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return Integer.toString(Config.targetTime);
+			}
+		}));
 	}
 
 	// The plugin's prefix, used for messages.
-	public final static String prefix = ChatColor.GREEN + "[" + ChatColor.DARK_GREEN + "RollbackCore" + ChatColor.GREEN
-			+ "] " + ChatColor.GRAY;
+	public final static String prefix = ChatColor.GREEN + "[" + ChatColor.DARK_GREEN
+			+ "RollbackCore" + ChatColor.GREEN + "] " + ChatColor.GRAY;
 
 	// Fired when plugin is disabled
 	@Override
