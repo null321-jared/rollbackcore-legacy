@@ -26,15 +26,20 @@ import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin {
+public class Main extends JavaPlugin implements Listener {
 
 	public static JavaPlugin plugin;
 	public static Path savesPath;
 	public static Path regionsPath;
 	Metrics metrics;
+	boolean isOn1_13 = false;
 
 	// Fired when plugin is first enabled
 	@Override
@@ -53,7 +58,7 @@ public class Main extends JavaPlugin {
 			Files.createDirectories(regionsPath);
 
 		} catch (IOException e) {
-			// Failed to submit the stats :-(
+			this.getLogger().warning("Failed to create directories.");
 		}
 		Config.loadConfigs(plugin);
 
@@ -65,6 +70,25 @@ public class Main extends JavaPlugin {
 				return Integer.toString(Config.targetTime);
 			}
 		}));
+
+		try {
+			Class.forName("org.bukkit.block.data.BlockData");
+			isOn1_13 = true;
+			Bukkit.broadcast(prefix + ChatColor.RED.toString() + ChatColor.BOLD.toString()
+					+ "You are using the legacy (1.4.7-1.12.2) RollbakCore jar! It is highly recommended that you update to the newest version for maximum performance and compatibility with new blocks.",
+					"rollback.admin");
+			this.getServer().getPluginManager().registerEvents(this, this);
+		} catch (ClassNotFoundException e) {
+			// Good.
+		}
+	}
+
+	@EventHandler
+	public void onJoin(PlayerJoinEvent event) {
+		if (isOn1_13 && event.getPlayer().hasPermission("rollback.admin")) {
+			event.getPlayer().sendMessage(prefix + ChatColor.RED.toString()
+					+ "You are using the legacy (1.4.7-1.12.2) RollbakCore jar! It is highly recommended that you update to the newest version for maximum performance and compatibility with new blocks.");
+		}
 	}
 
 	// The plugin's prefix, used for messages.
