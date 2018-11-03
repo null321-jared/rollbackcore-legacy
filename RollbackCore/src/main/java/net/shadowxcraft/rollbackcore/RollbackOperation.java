@@ -65,7 +65,7 @@ abstract class RollbackOperation implements Runnable {
 
 	/**
 	 * List of blocks that the plugin will skip in the newest version of the plugin. Currently
-	 * updated to Minecaft 1.10 Must be sorted.
+	 * updated to Minecaft 1.12. Must be sorted.
 	 * 
 	 * @since 2.0
 	 */
