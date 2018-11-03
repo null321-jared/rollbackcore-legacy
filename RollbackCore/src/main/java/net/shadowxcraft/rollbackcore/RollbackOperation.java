@@ -53,6 +53,7 @@ abstract class RollbackOperation implements Runnable {
 	static final int wallSignID = Material.WALL_SIGN.getId();
 	@SuppressWarnings("deprecation")
 	static final int signPostID = Material.SIGN_POST.getId();
+	static final int[] commandBlockIDs = {137, 210, 211};
 
 	/**
 	 * The list of blocks that the plugin skipped saving the data for in file format 1 for backwards

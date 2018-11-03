@@ -138,7 +138,7 @@ public class Rollback {
 	 * @see Copy
 	 * 
 	 * @deprecated Ever since version 2.0, this method does not increase performance, instead it
-	 *             just makes it unnecceceraly complicated.
+	 *             just makes it unnecessarily complicated.
 	 */
 	public static final void copyDistributed(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, World world,
 			String name, CommandSender sender) {

@@ -412,7 +412,7 @@ class PasteTask extends RollbackOperation {
 			compressCount = in.read();
 
 			// The following code is to read sign
-			// text.
+			// text and command block args.
 			if (compressCount == 0) {
 				lines = getLines();
 			} else {
