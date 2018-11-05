@@ -25,12 +25,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 
@@ -331,7 +333,8 @@ class CopyTask extends RollbackOperation {
 		// should skip writing. If it's 255, write it because that's the max value the byte
 		// array can hold.
 		// !(type.equals(Material.SIGN_POST) || type.equals(Material.WALL_SIGN))
-		if (id == lastId && data == lastData && count != 255 && id != wallSignID && id != signPostID) {
+		if (id == lastId && data == lastData && count != 255 && id != wallSignID &&
+				id != signPostID && Arrays.binarySearch(commandBlockIDs, id) < 0) {
 
 			// This means that the block repeated itself, so it keeps track of it, rather than
 			// writing it every time. This is to compress the output file.
@@ -366,15 +369,24 @@ class CopyTask extends RollbackOperation {
 		out.write(id);
 
 		// Checks if it is a sign.
-		if (id == wallSignID || id == signPostID) {
+		if (id == wallSignID || id == signPostID || Arrays.binarySearch(commandBlockIDs, id) >= 0) {
 			// If it is a sign, write the data (Direction it is facing in a
 			// sign's case)
 			out.write(data);
 			// Write 0 to signify the start of a line
 			out.write(0);
+			
+			String[] lines;
+			if(id == wallSignID || id == signPostID)
+				lines = ((Sign) block.getState()).getLines();
+			else {
+				CommandBlock cBlock = (CommandBlock) block.getState();
+				lines = new String[]{cBlock.getName(), cBlock.getCommand(),"",""};
+			}
+			
 			for (int i = 0; i < 4; i++) {
 				// Write the line to the file.
-				String signText = ((Sign) block.getState()).getLine(i);
+				String signText = lines[i];
 				for (int indx = 0; indx < signText.length(); indx++) {
 					out.write(signText.charAt(indx));
 				}

@@ -32,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 
@@ -57,9 +58,9 @@ public class Paste extends RollbackOperation {
 	// Keeps track of if entities should be cleared.
 	private final boolean clearEntities;
 	private final boolean ignoreAir;
-	protected PasteTask pasteTask;		// The paste task of this paste.
+	protected PasteTask pasteTask; // The paste task of this paste.
 	protected long startPasteTime = -1; // The nano-time the paste started at.
-	protected int blocksChanged = 0;	// The number of blocks changed, for statistical reasons.
+	protected int blocksChanged = 0; // The number of blocks changed, for statistical reasons.
 	private BufferedInputStream in;
 	private File file;
 	// Variables used to store the per-block values.
@@ -73,22 +74,16 @@ public class Paste extends RollbackOperation {
 	/**
 	 * The legacy constructor for backwards compatibility.
 	 * 
-	 * @param x
-	 *            Where the min-x of the paste will be pasted.
-	 * @param y
-	 *            Where the min-y of the paste will be pasted.
-	 * @param z
-	 *            Where the min-z of the paste will be pasted.
-	 * @param world
-	 *            What world the paste will be pasted in.
-	 * @param fileName
-	 *            The directory of the files.
-	 * @param pastes
-	 *            An optional ArrayList of pastes that will run after this one, allowing them to be
-	 *            distributed. Set to null if you don't want a paste to follow.
-	 * @param sender
-	 *            The person who will get status messages. Use null for no messages, and
-	 *            consoleSender for console.
+	 * @param x        Where the min-x of the paste will be pasted.
+	 * @param y        Where the min-y of the paste will be pasted.
+	 * @param z        Where the min-z of the paste will be pasted.
+	 * @param world    What world the paste will be pasted in.
+	 * @param fileName The directory of the files.
+	 * @param pastes   An optional ArrayList of pastes that will run after this one,
+	 *                 allowing them to be distributed. Set to null if you don't
+	 *                 want a paste to follow.
+	 * @param sender   The person who will get status messages. Use null for no
+	 *                 messages, and consoleSender for console.
 	 */
 	public Paste(int x, int y, int z, World world, String fileName, ArrayList<Paste> pastes, CommandSender sender) {
 		this(new Location(world, x, y, z), fileName, sender, false, false, Main.prefix);
@@ -96,27 +91,21 @@ public class Paste extends RollbackOperation {
 	}
 
 	/**
-	 * Used to create a new paste operation instance that can be used to paste the file.
+	 * Used to create a new paste operation instance that can be used to paste the
+	 * file.
 	 * 
-	 * @param x
-	 *            Where the min-x of the paste will be pasted.
-	 * @param y
-	 *            Where the min-y of the paste will be pasted.
-	 * @param z
-	 *            Where the min-z of the paste will be pasted.
-	 * @param world
-	 *            What world the paste will be pasted in.
-	 * @param fileName
-	 *            The path of the file
-	 * @param sender
-	 *            The person who will get status messages. Use null for no messages, and
-	 *            consoleSender for console.
-	 * @param clearEntities
-	 *            Used to specify if the paste operation will schedule the removal of the entities.
-	 * @param prefix
-	 *            Used for the prefix shown in the messages.
-	 * @param ignoreAir
-	 *            Not check blocks that are air in the file. May be useful for some plugins.
+	 * @param x             Where the min-x of the paste will be pasted.
+	 * @param y             Where the min-y of the paste will be pasted.
+	 * @param z             Where the min-z of the paste will be pasted.
+	 * @param world         What world the paste will be pasted in.
+	 * @param fileName      The path of the file
+	 * @param sender        The person who will get status messages. Use null for no
+	 *                      messages, and consoleSender for console.
+	 * @param clearEntities Used to specify if the paste operation will schedule the
+	 *                      removal of the entities.
+	 * @param prefix        Used for the prefix shown in the messages.
+	 * @param ignoreAir     Not check blocks that are air in the file. May be useful
+	 *                      for some plugins.
 	 */
 	public Paste(Location min, String fileName, CommandSender sender, boolean clearEntities, boolean ignoreAir,
 			String prefix) {
@@ -248,8 +237,8 @@ public class Paste extends RollbackOperation {
 	}
 
 	/**
-	 * Ends the paste task if it is done or not. Sets everything back to the way it should be and
-	 * closes open resources.
+	 * Ends the paste task if it is done or not. Sets everything back to the way it
+	 * should be and closes open resources.
 	 */
 	public final void kill() {
 		end(EndStatus.FAIL_EXERNAL_TERMONATION);
@@ -270,7 +259,8 @@ public class Paste extends RollbackOperation {
 
 		if (endStatus.equals(EndStatus.SUCCESS) && pastes != null && pastes.size() > 1) {
 			// This is for the legacy distributed pastes.
-			// Checks to see if there is another paste task to run. Removes from the ArrayList
+			// Checks to see if there is another paste task to run. Removes from the
+			// ArrayList
 			// because it's scheduling it.
 			pastes.remove(0);
 
@@ -286,23 +276,24 @@ public class Paste extends RollbackOperation {
 }
 
 /**
- * PasteTask class, used by the Paste task as a runnable to make pastes progressive.
+ * PasteTask class, used by the Paste task as a runnable to make pastes
+ * progressive.
  * 
  * @author lizardfreak321
  */
 class PasteTask extends RollbackOperation {
-	final private Location tempLoc;		// Stores the location that is currently being worked on.
-	private int id;						// The ID of the block being worked on.
-	private int data;					// The data of the block being worked on.
-	private int compressCount = 0;		// Used in the compression algorithm.
-	private String[] lines = null;		// Used when getting the lines of a sign from file.
-	private long index = 0;				// The index of the block.
-	private long tick = 0;				// The current tick.
-	protected final BufferedInputStream in;	// The stream used to read from the file.
-	protected final CommandSender sender;		// The sender that all messages are sent to.
-	private String prefix;				// The prefix all messages will have.
-	private final Paste paste;				// The PasteTask object.
-	private final int[] simpleBlocks; 	// Stores what blocks do not need the data saved
+	final private Location tempLoc; // Stores the location that is currently being worked on.
+	private int id; // The ID of the block being worked on.
+	private int data; // The data of the block being worked on.
+	private int compressCount = 0; // Used in the compression algorithm.
+	private String[] lines = null; // Used when getting the lines of a sign from file.
+	private long index = 0; // The index of the block.
+	private long tick = 0; // The current tick.
+	protected final BufferedInputStream in; // The stream used to read from the file.
+	protected final CommandSender sender; // The sender that all messages are sent to.
+	private String prefix; // The prefix all messages will have.
+	private final Paste paste; // The PasteTask object.
+	private final int[] simpleBlocks; // Stores what blocks do not need the data saved
 	private final boolean ignoreAir;
 
 	public PasteTask(Location min, Location max, BufferedInputStream in, Paste paste, int[] simpleBlocks,
@@ -324,11 +315,13 @@ class PasteTask extends RollbackOperation {
 		long startTime = System.nanoTime(); // Keeps track of the start time.
 		boolean skip = false;
 
-		// Increments the tick variable to keep track of how many ticks this operation has been
+		// Increments the tick variable to keep track of how many ticks this operation
+		// has been
 		// running.
 		tick++;
 
-		// Loops until done or skipped. Done is defined as when the x value goes too far.
+		// Loops until done or skipped. Done is defined as when the x value goes too
+		// far.
 		while (tempLoc.getBlockX() <= max.getBlockX() && !skip) {
 
 			try {
@@ -427,7 +420,8 @@ class PasteTask extends RollbackOperation {
 		// Gets the block from the temporary location.
 		Block block = tempLoc.getBlock();
 
-		// Checks if the blocks are the same to save resources. It is much more efficient to only
+		// Checks if the blocks are the same to save resources. It is much more
+		// efficient to only
 		// change blocks that are different.
 		if ((id != 0 || !ignoreAir) && (id != block.getTypeId() || data != block.getData())) {
 			// If they are, schedule a new
@@ -437,17 +431,30 @@ class PasteTask extends RollbackOperation {
 			paste.blocksChanged++;
 		}
 
-		// If it's a sign, set the text to what it was in the database (The array named "text")
-		if (lines != null && (id == signPostID || id == wallSignID)) {
-			if (!Arrays.equals(((Sign) block.getState()).getLines(), lines)) {
+		// If it's a sign, set the text to what it was in the database (The array named
+		// "text")
+		// Else if it's a command block, set its name and command.
+		if (lines != null) {
+			if (id == signPostID || id == wallSignID) {
+				if (!Arrays.equals(((Sign) block.getState()).getLines(), lines)) {
 
-				Sign sign = (Sign) block.getState();
-				for (int i = 0; i < 4; i++) {
-					sign.setLine(i, lines[i]);
+					Sign sign = (Sign) block.getState();
+					for (int i = 0; i < 4; i++) {
+						sign.setLine(i, lines[i]);
+					}
+
+					// Update the sign
+					sign.update();
 				}
-
-				// Update the sign
-				sign.update();
+			} else if (Arrays.binarySearch(commandBlockIDs, id) >= 0) {
+				CommandBlock cBlock = (CommandBlock) block.getState();
+				String name = lines[0];
+				String command = lines[1];
+				if(cBlock.getName() != name || cBlock.getCommand() != command) {
+					cBlock.setName(name);
+					cBlock.setCommand(command);
+					cBlock.update();
+				}
 			}
 		}
 	}
