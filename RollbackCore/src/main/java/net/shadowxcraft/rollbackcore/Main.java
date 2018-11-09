@@ -75,7 +75,7 @@ public class Main extends JavaPlugin implements Listener {
 			Class.forName("org.bukkit.block.data.BlockData");
 			isOn1_13 = true;
 			Bukkit.broadcast(prefix + ChatColor.RED.toString() + ChatColor.BOLD.toString()
-					+ "You are using the legacy (1.4.7-1.12.2) RollbakCore jar! It is highly recommended that you update to the newest version for maximum performance and compatibility with new blocks.",
+					+ "You are using the legacy (1.4.7-1.12.2) RollbackCore jar! It is highly recommended that you update to the newest version for maximum performance and compatibility with new blocks.",
 					"rollback.admin");
 			this.getServer().getPluginManager().registerEvents(this, this);
 		} catch (ClassNotFoundException e) {
@@ -87,7 +87,7 @@ public class Main extends JavaPlugin implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 		if (isOn1_13 && event.getPlayer().hasPermission("rollback.admin")) {
 			event.getPlayer().sendMessage(prefix + ChatColor.RED.toString()
-					+ "You are using the legacy (1.4.7-1.12.2) RollbakCore jar! It is highly recommended that you update to the newest version for maximum performance and compatibility with new blocks.");
+					+ "You are using the legacy (1.4.7-1.12.2) RollbackCore jar! It is highly recommended that you update to the newest version for maximum performance and compatibility with new blocks.");
 		}
 	}
 
