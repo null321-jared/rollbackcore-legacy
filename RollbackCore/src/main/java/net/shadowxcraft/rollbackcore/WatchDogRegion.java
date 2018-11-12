@@ -85,9 +85,29 @@ public class WatchDogRegion {
 	public WatchDogRegion(Location min, Location max, String prefix) {
 		this.min = min;
 		this.max = max;
+		fixCoordinates();
 		this.originalWorldSaveSetting = min.getWorld().isAutoSave();
 		this.prefix = prefix;
 		watchDogs.add(this);
+	}
+	
+	private void fixCoordinates() {
+		int temp;
+		if(min.getX() > max.getBlockX()) {
+			temp = min.getBlockX();
+			min.setX(max.getBlockX());
+			max.setX(temp);
+		}
+		if(min.getY() > max.getBlockY()) {
+			temp = min.getBlockY();
+			min.setY(max.getBlockY());
+			max.setY(temp);
+		}
+		if(min.getZ() > max.getBlockZ()) {
+			temp = min.getBlockZ();
+			min.setZ(max.getBlockZ());
+			max.setZ(temp);
+		}
 	}
 
 	/**
@@ -145,6 +165,13 @@ public class WatchDogRegion {
 		if (!originalStates.containsKey(location)) {
 			originalStates.put(location, state);
 		}
+	}
+	
+	/**
+	 * @return the location of the minimum x, y, and z of the region.
+	 */
+	public final Location getMin() {
+		return min;
 	}
 
 	/**

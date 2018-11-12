@@ -137,4 +137,12 @@ abstract class RollbackOperation implements Runnable {
 		}
 		return false;
 	}
+	
+	public Location getMin() {
+		return min;
+	}
+	
+	public String getFileName() {
+		return fileName;
+	}
 }

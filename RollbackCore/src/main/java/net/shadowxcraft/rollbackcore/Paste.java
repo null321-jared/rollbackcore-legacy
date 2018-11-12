@@ -47,8 +47,6 @@ import net.shadowxcraft.rollbackcore.events.PasteEndEvent;
  */
 public class Paste extends RollbackOperation {
 
-	// Used to store the X, Y, and Z of where it's getting pasted.
-	private final Location min;
 	// Used to store the pastes so that this class can start a new paste in
 	// distributed pastes.
 	private ArrayList<Paste> pastes = null;
