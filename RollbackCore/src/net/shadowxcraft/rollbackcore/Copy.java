@@ -51,7 +51,7 @@ public class Copy extends RollbackOperation {
 	private BufferedOutputStream out;
 	private File file;
 	private Long startTime = -1l;
-	private static final List<Copy> runningCopies = new ArrayList<Copy>();
+	static final List<Copy> runningCopies = new ArrayList<Copy>();
 
 	/**
 	 * Used to schedule a copy. This is the legacy constructor. Used by the copyDistributed method.
@@ -176,7 +176,6 @@ public class Copy extends RollbackOperation {
 
 		this.copyTask = task;
 		runningCopies.add(this);
-		TaskManager.addTask();
 		taskID = Main.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, task, 1, 1);
 		return true;
 	}
@@ -251,8 +250,6 @@ public class Copy extends RollbackOperation {
 
 	// Ends it with that end status.
 	protected final void end(EndStatus endStatus) {
-		TaskManager.removeTask();
-
 		runningCopies.remove(this);
 		// Closes the resource to close resources.
 		if (out != null)

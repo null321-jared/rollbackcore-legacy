@@ -20,7 +20,9 @@
 package net.shadowxcraft.rollbackcore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -38,6 +40,7 @@ import net.shadowxcraft.rollbackcore.events.EndStatus;
  * @author lizardfreak321
  */
 public class ClearEntities {
+	static Set<ClearEntities> runningClears = new HashSet<ClearEntities>();
 	public final Location min;
 	public final Location max;
 	private List<EntityType> allowedEntities;
@@ -108,7 +111,7 @@ public class ClearEntities {
 	 * @return The ClearEntities object being operated on.
 	 */
 	public final ClearEntities progressiveClearEntities() {
-		TaskManager.addTask(); // To manage timings.
+		runningClears.add(this); // To manage timings.
 		startclearTime = System.nanoTime();
 		this.task = new ClearEntitiesTask(min, max, quick, allowedEntities, this);
 		this.task.runTaskTimer(Main.plugin, 1, 1);
@@ -186,7 +189,7 @@ class ClearEntitiesTask extends BukkitRunnable {
 		// If this is true, it means it is done.
 		if (tempX > max.getBlockX() || (quick && index >= loadedChunks.length)) {
 			this.cancel();
-			TaskManager.removeTask();
+			ClearEntities.runningClears.remove(parentTask);
 			isDone = true;
 			new ClearEntitiesEndEvent(parentTask, System.nanoTime() - parentTask.getStartClearTime(),
 					EndStatus.SUCCESS);

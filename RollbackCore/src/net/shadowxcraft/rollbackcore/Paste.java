@@ -67,7 +67,7 @@ public class Paste extends RollbackOperation {
 	private int sizeZ;
 	private int version;
 	int[] simpleBlocks = version1Blocks;
-	private static final List<Paste> runningPastes = new ArrayList<Paste>();
+	static final List<Paste> runningPastes = new ArrayList<Paste>();
 
 	/**
 	 * The legacy constructor for backwards compatibility.
@@ -153,8 +153,6 @@ public class Paste extends RollbackOperation {
 				return;
 			}
 		}
-
-		TaskManager.addTask();
 
 		if (!initializeFile()) {
 			return;
@@ -253,7 +251,6 @@ public class Paste extends RollbackOperation {
 		Bukkit.getScheduler().cancelTask(taskID);
 		taskID = -1;
 		runningPastes.remove(this);
-		TaskManager.removeTask();
 
 		if (endStatus.equals(EndStatus.SUCCESS) && pastes != null && pastes.size() > 1) {
 			// This is for the legacy distributed pastes.
